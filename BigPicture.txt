@@ -1,0 +1,40 @@
+
+- 100 prosumers (some can be consumers, some pv owners)
+
+- at least 24 time steps : 24 h
+
+- at each time steps each prosumer goes through 3 levels :
+
+    1. self-balancing => use own pv/storage/load shifting to reduce own imbalance 
+
+    2. Self-Organized negotiation(P2P trading)  => trade remaining surplus/deficit with other prosumers
+
+    3. Local market via load aggregator  => whatever is still not balanced goes to a local market (central clearing)
+    and finally to the utility/Grid if still needed
+
+REGULATOR :
+- controller that sets rules to push the community toward some objective, like:
+    -- maximize total community profile,Or
+    -- maximize renewable usage 
+    -- maximize amount of self-Organized trading 
+    -- even create chaos 
+
+BLOCKCHAIN:
+- Every agreed transaction is recorded on a simple blockchain :
+    -- At least 10 miners/validators 
+    -- We choose POW(e.g: hash starts with "000") or POS 
+
+- Using course blocks we already have :
+    -- PV generation => forecast roof-top PV output per prosumer 
+    -- Price Forecast => forecast of external grid price/wholesale price
+    -- Prosumer Community => agent behaviors, bakancing rules 
+    -- Blockchain Support => mining, consensus, transaction loggin
+
+
+FINAL DELIVERY :
+- less than 10 slides :
+    -- community assumption 
+    -- mathematical models
+    -- simulation result 
+    -- discussion 
+    -- conclusion 
