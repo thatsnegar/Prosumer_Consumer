@@ -39,28 +39,20 @@ class Block:
 
 
 class Blockchain:
-    """
-    simple POW blockchain for loggin energy transaction
-    """
 
-    def __init__(self,difficulty: int = 3, miner_ids: Optional[List[int]] = None):
-        """
-        difficulyt : number of leading zeros required in POW hash
-        miner_ids : list of valid miner IDs => must be greater than 10
-        """
+    def __init__(self, difficulty=3, miner_ids=None):
         self.difficulty = difficulty
-        self.chain: List[Block] = []
+        self.chain = []
 
         if miner_ids is None:
-             # default: 10 miners with IDs 0..9
             self.miner_ids = list(range(10))
-        if len(miner_ids) < 10:
-            raise ValueError("At least 10 miner IDs are required.")
-        
-        self.miner_ids = miner_ids
+        else:
+            if len(miner_ids) < 10:
+                raise ValueError("At least 10 miner IDs are required.")
+            self.miner_ids = miner_ids
 
-        # Create the genesis block
         self.create_genesis_block()
+
     
     def create_genesis_block(self) -> None:
         """
@@ -107,34 +99,28 @@ class Blockchain:
     
 
     def is_valid(self) -> bool:
-        """
-        verify the integrity of the blockchain
-        """
+        """Check blockchain integrity and PoW validity."""
 
         prefix = '0' * self.difficulty
 
         for i in range(1, len(self.chain)):
             current = self.chain[i]
-            previpus = self.chain[i - 1]
+            previous = self.chain[i - 1]
 
-            # check hash correctness
             if current.hash != current.compute_hash():
-                print(f"Invalid hash at block {i}")
                 return False
-            
-            # check linkage 
-            if current.previous_hash != previpus.hash:
-                print(f"Invalid previous hash at block {i}")
+
+            if current.previous_hash != previous.hash:
                 return False
-            
-            # check POW difficulty
+
             if not current.hash.startswith(prefix):
-                print(f"Block {i} does not meet the difficulty requirement")
                 return False
-            
-            return True
+
+        return True
+
     
-    def Summary(self) -> Dict :
+    
+    def summary(self) -> Dict :
         """
         A short summary
         """

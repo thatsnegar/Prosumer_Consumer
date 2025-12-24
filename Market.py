@@ -11,7 +11,7 @@ def match_trades(
     List[Tuple[int, float, float]] #remaining bids
 ]:
     """
-    Self-organized P2P market matching.
+    Self-organized p2p market matching.
 
     Sellers are sorted by increasing price.
     Buyers are sorted by decreasing price.
@@ -43,7 +43,7 @@ def match_trades(
     j = 0 # index for buyers
 
     while i < len(asks) and j < len(bids):
-        seler_id, seller_qty, seller_price = asks[i]
+        seller_id, seller_qty, seller_price = asks[i]
         buyer_id, buyer_qty, buyer_price = bids[j]
 
         # Check if prices overlap
@@ -59,11 +59,11 @@ def match_trades(
         # register trade
         trades.append(
             {
-                "seller": seler_id,
+                "seller": seller_id,
                 "buyer": buyer_id,
-                "quantity_kwh": traded_qty,
+                "quantity": traded_qty,
                 "price" : clearing_price,
-                "type": "P2P"
+                "type": "p2p"
 
             }
         )
@@ -76,7 +76,7 @@ def match_trades(
         if seller_qty <= 1e-6:
             i += 1
         else:
-            asks[i] = (seler_id, seller_qty, seller_price)
+            asks[i] = (seller_id, seller_qty, seller_price)
 
         # update buyer
         if buyer_qty <= 1e-6:
@@ -105,7 +105,7 @@ def match_local_market(
     """
     Local market operated by a community aggregator.
 
-    Uses the same matching logic as P2P trading, but:
+    Uses the same matching logic as p2p trading, but:
       - trades are labeled as 'local_market'
       - price is capped by the grid price
 
