@@ -6,9 +6,11 @@ def generate_price_profile(num_steps:int):
     # base pattern cheap at night, expensive in evening
     based = 0.20 + 0.10 * np.sin((hours - 19) / 24 * 2 * np.pi) ** 2 #peak is at 19:00
     noise = np.random.normal(0, 0.01, size=num_steps) 
-    grid_price = based + noise
+    grid_price = based + noise 
     grid_price = np.clip(grid_price, 0.12, 0.45) # make sure prices stay within reasonable bounds of 0.12-0.45 €/kWh which is typical in europe
     # clip prevent too low or too high prices due to noise
+    # minimum guranteed priceis used nowadays 
+    # PMG => bc it is changed 
     fit_price = 0.08  # €/kWh grid buys surplus energy from prosumers and it is constant
 
     return grid_price, fit_price

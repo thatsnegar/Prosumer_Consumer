@@ -31,6 +31,7 @@ class Regulator:
         if self.objective == "maximize_p2p":
             return stats_t.get("p2p_share", 0.0)
 
+        # if we want to maximize profit what we are going to do 
         if self.objective == "maximize_profit":
             return stats_t.get("community_profit", 0.0)
 
@@ -65,6 +66,7 @@ class Regulator:
                 p.banned = True
 
             # Reward
+            # how we can show that if s.one rewarded has a  better participation later on 
             elif participation_ratio >= self.reward_threshold:
                 p.money += self.reward_amount
 
