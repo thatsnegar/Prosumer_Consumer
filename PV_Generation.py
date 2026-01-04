@@ -23,7 +23,8 @@ def generate_PV_profile(num_prosumers: int, num_steps: int):
     pv = np.zeros((num_prosumers, num_steps))
     
     for i in range(num_prosumers):
-        noise = np.random.normal(0, 0.05, size=num_steps)  # small random noise per prosumer weather variation and etc 
+        noise = np.random.normal(1, 0.05, size=num_steps)  # small random noise per prosumer weather variation and etc 
+        # WE SHOULD PUT NOISE AROUND 1 AND NOT 0
         # noise example :
         # 1 => perfect shape 
         # 1.3 => 30% more production (very sunny day)
@@ -36,7 +37,7 @@ def generate_PV_profile(num_prosumers: int, num_steps: int):
     #for generality:
     delta_t = 24 / num_steps  # hours per time step
     pv = pv * delta_t  # convert from kW to kWh
-    return pv, capacities 
+    return pv, capacities
 # PV => matrix of shape (num_prosumers, num_steps) with kWh production values
 # capacity => PV size for each prosumer
     
