@@ -23,8 +23,7 @@ def generate_PV_profile(num_prosumers: int, num_steps: int):
     pv = np.zeros((num_prosumers, num_steps))
     
     for i in range(num_prosumers):
-        noise = np.random.normal(1, 0.05, size=num_steps)  # small random noise per prosumer weather variation and etc 
-        # WE SHOULD PUT NOISE AROUND 1 AND NOT 0
+        noise = np.random.normal(0, 0.05, size=num_steps)  # small random noise per prosumer weather variation and etc 
         # noise example :
         # 1 => perfect shape 
         # 1.3 => 30% more production (very sunny day)
