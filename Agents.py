@@ -32,7 +32,7 @@ class Prosumer:
 
 
     # behavior knobs
-    trade_fraction : float = 0.8  # α: fraction of imbalance to trade in markets
+    trade_fraction : float = 0.75  # α: fraction of imbalance to trade in markets
     undercut_factor : float = 0.9  # β: seller price = β * grid_price (slightly cheaper than grid)
     
 

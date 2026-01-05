@@ -14,9 +14,9 @@ class Regulator:
         punish_threshold: float = 0.1,
         reward_threshold_silver: float = 0.5,
         reward_threshold_gold: float = 0.8,
-        reward_amount1: float = 0.1,
-        reward_amount2: float = 0.3,
-        reward_amount3: float = 0.5
+        reward_amount1: float = 0.15,
+        reward_amount2: float = 0.25,
+        reward_amount3: float = 0.35
     ):
         self.objective = objective
         self.punish_threshold = punish_threshold
@@ -35,7 +35,8 @@ class Regulator:
         """
 
         if self.objective == "maximize_p2p":
-            return stats_t.get("p2p_share", 0.0)
+            #return stats_t.get("p2p_share", 0.0)
+            return stats_t.get("P2P_penetration_ratio", 0.0)
 
         # if we want to maximize profit what we are going to do 
         if self.objective == "maximize_profit":
@@ -57,21 +58,32 @@ class Regulator:
             # Ban lasts only one step
             p.banned = False
 
-            # For this regulation, we consider the imbalance of the prosumer as the potential P2P trade. 
-            # Thus we consider both surplus and deficit situations which can both lead to P2P trading.
-            # This allows to evaluate the participation ratio in P2P trading (P2P buy for deficit, P2P sell for surplus).
-            # last_imbalance represents the net surplus (positive) or deficit (negative) of the prosumer after local consumption and production.
+            """"
+             For this regulation, we consider the imbalance of the prosumer as the potential P2P trade. 
+             Thus we consider both surplus and deficit situations which can both lead to P2P trading.
+             This allows to evaluate the participation ratio in P2P trading (P2P buy for deficit, P2P sell for surplus).
+             last_imbalance represents the net surplus (positive) or deficit (negative) of the prosumer after local consumption and production.
+            """
 
-            potential_p2p = abs(p.last_imbalance)
+            
+            # We define the theoric maximum P2P trade for this agent
+            if p.last_imbalance > 0: #Seller
+                # He can't sell more than his surplus
+                # AND he can't sell more than the total community demand
+                achievable_p2p = min(abs(p.last_imbalance), total_community_deficit)
+            else: #Buyer
+                # He can't buy more than his deficit
+                # AND he can't buy more than the total community offer
+                achievable_p2p = min(abs(p.last_imbalance), total_community_surplus)  
 
-            # No imbalance => nothing to evaluate
-            if potential_p2p <= 1e-6:
+            #Security: if P2P market is empty (no offer/demand)
+            if achievable_p2p <= 1e-6:
                 p.reset_step_metrics()
                 continue
 
-            # Participation ratio
-            participation_ratio = p.p2p_traded_today / (potential_p2p)
 
+            # Participation ratio
+            participation_ratio = p.p2p_traded_today / (achievable_p2p + 1e-6)
 
             # PUNISHMENT
             if participation_ratio < self.punish_threshold:
@@ -86,21 +98,26 @@ class Regulator:
                 
                 # Case 3: The prosumer did not participate despite available P2P offers/demands
                 else:
-                    p.banned = True
-                    # Agent "learns" that he must be more cooperative in future to avoid being banned
+                    #p.banned = True
+                    # Deduct a fine from the prosumer's money
+                    p.money -= 0.2
+                    # Agent "learns" that he must be more cooperative in future to avoid being fined
                     p.trade_fraction = min(1.0, p.trade_fraction + 0.1)
 
-            # REWARD
-            # with the reward, prosumer becomes more cooperative in future and trades more
-            # However, the behavior boost decreases after a certain level despite the increase of reward
-            # (The reward system becomes insensitive after a certain level)
+
+                """
+                REWARD
+                with the reward, prosumer becomes more cooperative in future and trades more
+                However, the behavior boost decreases after a certain level despite the increase of reward
+                (The reward system becomes insensitive after a certain level)
+                """
             elif self.punish_threshold <= participation_ratio < self.reward_threshold_silver:
                 p.money += self.reward_amount1
-                p.trade_fraction = min(1.0, p.trade_fraction + 0.05) #First behavior boost
+                p.trade_fraction = min(1.0, p.trade_fraction + 0.03) #First behavior boost
 
             elif self.reward_threshold_silver <= participation_ratio < self.reward_threshold_gold:
                 p.money += self.reward_amount2
-                p.trade_fraction = min(1.0, p.trade_fraction + 0.03) #Second behavior boost
+                p.trade_fraction = min(1.0, p.trade_fraction + 0.015) #Second behavior boost
 
             elif participation_ratio >= self.reward_threshold_gold:
                 p.money += self.reward_amount3
