@@ -92,36 +92,44 @@ def match_trades(
 
 
 
+
 def match_local_market(
-        asks: List[Tuple[int, float, float]], #seller offers 
-        bids: List[Tuple[int, float, float]], #buyer offers
-        grid_price: float 
-) -> Tuple[
-    List[Dict],  #executed trades
-    List[Tuple[int, float, float]], #remaining asks
-    List[Tuple[int, float, float]] #remaining bids
-]:
-    
+    remaining_asks: List[Tuple[int, float, float]],   # (id, qty, price) - sellers leftover
+    remaining_bids: List[Tuple[int, float, float]],   # (id, qty, price) - buyers leftover
+    grid_price: float
+) -> List[Dict]:
     """
-    Local market operated by a community aggregator.
-
-    Uses the same matching logic as p2p trading, but:
-      - trades are labeled as 'local_market'
-      - price is capped by the grid price
-
-    Returns:
-        local_trades
-        remaining_asks
-        remaining_bids
+    Aggregator-based local market:
+    - Aggregator is always counterparty.
+    - If only asks exist: aggregator buys surplus.
+    - If only bids exist: aggregator sells energy to deficit.
     """
 
-    trades, remaining_asks, remaining_bids = match_trades(asks, bids)
+    local_price = 0.95 * grid_price  # cheaper than grid
 
-    # relable trade and optionally cap price
-    for trade in trades:
-        trade["type"] = "local_market"
-        # Ensure local market price does not exceed grid price
-        trade["price"] = min(trade["price"], grid_price)
+    trades: List[Dict] = []
 
-    return trades, remaining_asks, remaining_bids
+    # Surplus left: prosumers sell to aggregator
+    for pid, qty, _ in remaining_asks:
+        if qty > 1e-9:
+            trades.append({
+                "prosumer": pid,
+                "side": "sell",     # prosumer sells to local aggregator
+                "quantity": qty,
+                "price": local_price,
+                "type": "local_market"
+            })
+
+    # Deficit left: prosumers buy from aggregator
+    for pid, qty, _ in remaining_bids:
+        if qty > 1e-9:
+            trades.append({
+                "prosumer": pid,
+                "side": "buy",      # prosumer buys from local aggregator
+                "quantity": qty,
+                "price": local_price,
+                "type": "local_market"
+            })
+
+    return trades
 
