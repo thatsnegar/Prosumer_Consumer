@@ -124,13 +124,16 @@ class Prosumer:
         
 
 
-    def settle_with_grid(self,remaining_imbalance: float, grid_price_t: float, fit_price: float) -> Tuple[float, float]:
+    def retailer_settle_with_grid(self,remaining_imbalance: float, grid_price_t: float, fit_price: float) -> Tuple[float, float]:
             """
             Step 3 (fallback): settle any remaining imbalance with the utility grid.
             If remaining_imbalance > 0 (surplus): sell to grid at fit_price
             If remaining_imbalance < 0 (deficit): buy from grid at grid_price_t
 
             Returns: (grid_import_kwh, grid_export_kwh)
+
+            The retailer is in charge of interacting with prosumers to sell them energy from the grid
+            And the GSE (Energy Services Manager) is in charge of buying surplus energy from prosumers at the Feed-in-Tariff price.
             """
 
             grid_import = 0.0
