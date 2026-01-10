@@ -14,9 +14,9 @@ class Regulator:
         punish_threshold: float = 0.1,
         reward_threshold_silver: float = 0.5,
         reward_threshold_gold: float = 0.8,
-        reward_amount1: float = 0.15,
-        reward_amount2: float = 0.25,
-        reward_amount3: float = 0.35
+        reward_amount1: float = 0.025,
+        reward_amount2: float = 0.05,
+        reward_amount3: float = 0.1
     ):
         self.objective = objective
         self.punish_threshold = punish_threshold
@@ -38,7 +38,7 @@ class Regulator:
             #return stats_t.get("p2p_share", 0.0)
             return stats_t.get("P2P_penetration_ratio", 0.0)
 
-        # if we want to maximize profit what we are going to do 
+        # if we want to maximize profit, not implemented in the project but potential improvement
         if self.objective == "maximize_profit":
             return stats_t.get("community_profit", 0.0)
 
@@ -55,7 +55,7 @@ class Regulator:
 
         for p in prosumers:
 
-            # Ban lasts only one step
+            # We do not ban prosumers in this regulation
             p.banned = False
 
             """"
@@ -67,6 +67,8 @@ class Regulator:
 
             
             # We define the theoric maximum P2P trade for this agent
+            # => This allows not to punish prosumers for not trading with P2P while there is a lack of supply / demand on the market
+
             if p.last_imbalance > 0: #Seller
                 # He can't sell more than his surplus
                 # AND he can't sell more than the total community demand
@@ -90,16 +92,16 @@ class Regulator:
 
                 # Case 1: If it's a buyer but there is no P2P offers available
                 if p.last_imbalance < 0 and total_community_surplus == 0:
-                    pass # We don't ban the seller if he has nothing to buy
+                    pass # We don't punish the seller if he has nothing to buy
 
                 # Case 2: If it's a seller but there is no P2P demand available
                 elif p.last_imbalance > 0 and total_community_deficit == 0:
-                    pass # We don't ban the buyer if there is no offer
+                    pass # We don't punish the buyer if there is no offer
                 
                 # Case 3: The prosumer did not participate despite available P2P offers/demands
                 else:
-                    #p.banned = True
-                    # Deduct a fine from the prosumer's money
+                    #p.banned = True: we could have ban the prosumer but it had a negative effect on p2p share so we didn't
+                    # Deduct a fine from the prosumer's money instead:
                     p.money -= 0.2
                     # Agent "learns" that he must be more cooperative in future to avoid being fined
                     p.trade_fraction = min(1.0, p.trade_fraction + 0.1)
