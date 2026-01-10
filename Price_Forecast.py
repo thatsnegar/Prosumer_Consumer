@@ -1,6 +1,8 @@
 import numpy as np
 
-def generate_price_profile(num_steps:int):
+def retailer_generate_price_profile(num_steps:int):
+    # In this function, the retailer generates grid price profile and the Energy Services Manager (GSE) the FiT price.
+
     hours = np.linspace(0, 24, num_steps, endpoint=False) #[0., 1., 2., ..., 23.] each index corresponds to an hour of the day
 
     # base pattern cheap at night, expensive in evening
@@ -9,8 +11,9 @@ def generate_price_profile(num_steps:int):
     grid_price = based + noise 
     grid_price = np.clip(grid_price, 0.12, 0.45) # make sure prices stay within reasonable bounds of 0.12-0.45 €/kWh which is typical in europe
     # clip prevent too low or too high prices due to noise
-    # minimum guranteed priceis used nowadays 
-    # PMG => bc it is changed 
+
+    # Feed-in-Tariff: the Energy Services Manager (GSE) buys solar surplus to prosumers at FiT price
+    # minimum guranteed price is used nowadays in Italy but we use a fixed FiT price to ensure price stability for prosumers
     fit_price = 0.08  # €/kWh grid buys surplus energy from prosumers and it is constant
 
     return grid_price, fit_price
